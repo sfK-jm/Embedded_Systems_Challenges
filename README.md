@@ -4,11 +4,15 @@
 >
 > > redis 분석 및 새로운 명령어 추가
 
+### 과제 설명
+
+![challenges](/임베디드%20과제2%20redis.pdf)
+
 ### pang 명령어 구현
 
 - pang이라는 명령어는 ping이랑 같은 역활을 수행함
 - 차이점으로는 pang이라는 명령어는 PUNG을 출력함
 
----
+![pangCommand](/pang_command.png)
 
-###### 이 코드는 redis분석과 새로운 명령어를 추가하는 과제입니다
+###### redis 다운로드 링크 [REDIS](https://redis.io/download/)
