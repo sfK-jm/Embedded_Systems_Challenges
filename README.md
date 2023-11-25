@@ -6,7 +6,7 @@
 
 ### 과제 설명
 
-![challenges](/임베디드%20과제2%20redis.pdf)
+![challenges](/임베디드%20과제2%20redis.png)
 
 ### pang 명령어 구현
 
