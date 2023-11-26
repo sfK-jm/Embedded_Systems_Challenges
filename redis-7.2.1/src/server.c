@@ -25,6 +25,16 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * 
+ * 
+ * server.c 파일은 Redis 서버의 핵심 동작을 제어하는 코드를 포함하고 있습니다. 이 파일에는 서버의 초기화, 클라이언트 연결 처리, 명령어 처리, 이벤트 루프 등 서버의 주요 동작을 담당하는 함수들이 구현되어 있습니다.
+ * 특히, pingCommand 함수는 PING 명령어를 처리하는 함수입니다. 클라이언트가 PING 명령어를 보내면, 서버는 "PONG"을 응답으로 보내어 서버가 정상적으로 동작하고 있음을 알립니다.
+ * 또한, server.c 파일에는 redisCommandTable라는 구조체 배열이 정의되어 있습니다. 이 배열은 Redis에서 사용 가능한 모든 명령어와 그에 대응하는 메타데이터를 저장하고 있습니다.
+ * 따라서, server.c 파일은 Redis 서버의 핵심 동작을 제어하고, 사용자의 명령어를 처리하는 중요한 역할을 합니다.
+ * 
+ * 
+ * 
  */
 
 #include "server.h"

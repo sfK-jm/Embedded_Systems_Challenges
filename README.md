@@ -87,6 +87,99 @@ Redis의 SET 명령어가 클라이언트에서 서버로 전달되고, 최종�
 - pang이라는 명령어는 ping이랑 같은 역활을 수행함
 - 차이점으로는 pang이라는 명령어는 PUNG을 출력함
 
+server.h에 pingCommand 명령어 선언
+
+```h
+void pangCommand(client *c);
+```
+
+server.c에 pingCommand 명령어 생성
+
+```c
+/*=================== PANG COMMAND ===================*/
+void pangCommand(client *c) {
+    /* The command takes zero or one arguments. */
+    if (c->argc > 2) {
+        addReplyErrorArity(c);
+        return;
+    }
+
+    if (c->flags & CLIENT_PUBSUB && c->resp == 2) {
+        addReply(c,shared.mbulkhdr[2]);
+        addReplyBulkCBuffer(c,"PUNG",4);
+        if (c->argc == 1)
+            addReplyBulkCBuffer(c,"",0);
+        else
+            addReplyBulk(c,c->argv[1]);
+    } else {
+        if (c->argc == 1)
+            addReply(c,shared.pung);
+        else
+            addReplyBulk(c,c->argv[1]);
+    }
+}
+```
+
+server.h의 shareObjectsStruct에 pung 추가
+
+```h
+    struct sharedObjectsStruct {
+    robj *ok, *err, *emptybulk, *czero, *cone, *pong, *pung, // 생략
+    }
+```
+
+server.c에 서버초기화 영역에 공유 문자열 객체를 생성하는 함수인
+createShareObjects에 pung을 추가
+
+```c
+
+void createSharedObjects(void) {
+    int j;
+
+    /* Shared command responses */
+    // 생략
+    shared.pung = createObject(OBJ_STRING,sdsnew("+PUNG\r\n"));
+    // 생략
+}
+```
+
+commands.def에 ping명령어처럼 다음과 같이 구현
+
+```def
+/********** PANG ********************/
+
+#ifndef SKIP_CMD_HISTORY_TABLE
+/* PING history */
+#define PANG_History NULL
+#endif
+
+#ifndef SKIP_CMD_TIPS_TABLE
+/* PING tips */
+const char *PANG_Tips[] = {
+"request_policy:all_shards",
+"response_policy:all_succeeded",
+};
+#endif
+
+#ifndef SKIP_CMD_KEY_SPECS_TABLE
+/* PING key specs */
+#define PANG_Keyspecs NULL
+#endif
+
+/* PING argument table */
+
+struct COMMAND_ARG PANG_Args[] = {
+{MAKE_ARG("message",ARG_TYPE_STRING,-1,NULL,NULL,NULL,CMD_ARG_OPTIONAL,0,NULL)},
+};
+
+
+// (중략)
+
+{MAKE_CMD("pang","Description of the pang command.","O(1)","1.0.0",CMD_DOC_NONE,NULL,NULL,"connection",COMMAND_GROUP_CONNECTION,PANG_History,0,PANG_Tips,0,pangCommand,-1,CMD_FAST,ACL_CATEGORY_CONNECTION,PANG_Keyspecs,0,NULL,1),.args=PANG_Args},
+
+
+```
+
 ![pangCommand](/pang_command.png)
 
 ## 2. In-Memory Database
@@ -97,15 +190,28 @@ Redis의 SET 명령어가 클라이언트에서 서버로 전달되고, 최종�
 
 Redis의 데이터베이스는 메모리에 저장되는 key-value store로, 주로 dict라는 자료 구조를 통해 관리됩니다. dict는 해시 테이블을 구현한 것으로, 키를 해시 함수를 통해 인덱스로 변환하고, 이 인덱스를 사용해 값을 저장하거나 검색합니다.
 
-dict 자료 구조는 dict.c와 dict.h 파일에서 정의되고 구현되며, 주요 구성 요소는 다음과 같습니다:
+redis에서 사용자가 입력한 데이터가 데이터베이스에 저장되는 과정
 
-- dictEntry: 키와 값, 그리고 다음 엔트리를 가리키는 포인터를 저장하는 구조체입니다.
-- dictht: 해시 테이블을 나타내는 구조체로, dictEntry 배열과 해시 테이블의 크기, 사용 중인 엔트리의 수 등을 저장합니다.
-- dict: dictht를 두 개 가지고 있는 구조체로, 하나는 메인 해시 테이블, 다른 하나는 재해싱 중일 때 사용됩니다.
+1. Client에서 Command 수신: Redis 클라이언트는 사용자로부터 명령을 받습니다. 예를 들어, SET key value와 같은 명령을 받을 수 있습니다.
 
-각 key-value 쌍은 redisObject라는 구조체를 통해 표현되며, 이는 object.c와 object.h 파일에서 정의됩니다. redisObject는 값의 타입, 인코딩 방식, 실제 데이터 등을 저장합니다.
+2. Command Parsing: Redis 서버는 클라이언트로부터 받은 명령을 파싱합니다. 이 과정에서 명령의 유효성을 검사하고, 명령의 이름과 인자를 추출합니다.
 
-따라서, Redis의 In-Memory 데이터베이스 구조는 dict와 redisObject를 통해 구현되며, 이를 통해 효율적인 key-value 저장 및 검색이 가능합니다.
+3. Command Lookup and Execution: Redis 서버는 파싱된 명령의 이름을 기반으로 명령 테이블에서 해당 명령의 함수를 찾습니다. 찾은 함수를 실행하여 명령을 처리합니다.
+
+4. Data Structure Operation: 명령의 처리 과정에서 Redis 서버는 적절한 데이터 구조에 대한 연산을 수행합니다. 예를 들어, SET 명령의 경우, Hashtable에 key-value 쌍을 추가하는 연산을 수행합니다.
+
+5. Response to Client: 연산이 완료되면, Redis 서버는 결과를 클라이언트에게 응답합니다. 예를 들어, SET 명령의 경우, 성공적으로 값을 설정하면 "OK"를 응답합니다.
+
+---
+
+Redis는 주로 해시 테이블을 사용하여 메모리에 데이터를 저장합니다. 이 해시 테이블은 dict 구조체로 표현되며, 각 키-값 쌍은 dictEntry 구조체로 표현됩니다.
+
+dictEntry 구조체는 다음과 같은 필드를 가집니다:
+
+- void \*key: 키를 저장하는 포인터입니다.
+- union { void \*val; uint64_t u64; int64_t s64; double d; } v: 값(value)을 저장하는 유니온입니다. 이 유니온은 여러 가지 데이터 타입을 저장할 수 있도록 설계되어 있습니다.
+- struct dictEntry \*next: 같은 해시 버킷의 다음 dictEntry를 가리키는 포인터입니다. 이 포인터는 체이닝 방식으로 해시 충돌을 해결하는 데 사용됩니다.
+- void \*metadata[]: 메타데이터를 저장하는 배열입니다. 이 배열의 크기는 dictType의 dictEntryMetadataBytes() 함수에 의해 결정됩니다.
 
 ### 과제 2-2 Data types
 

@@ -31,6 +31,19 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * 
+ * dict.c 파일은 Redis에서 해시 테이블을 구현하는 데 사용됩니다. 
+ * 이 파일에는 해시 테이블을 생성, 수정, 조회, 삭제하는 데 필요한 함수들이 구현되어 있습니다.
+ * 주요 함수들은 다음과 같습니다:
+ * 
+ * dictCreate: 새로운 해시 테이블을 생성합니다.
+ * dictAdd: 해시 테이블에 새로운 키-값 쌍을 추가합니다.
+ * dictReplace: 해시 테이블에서 특정 키의 값을 교체합니다.
+ * dictFind: 해시 테이블에서 특정 키를 찾습니다.
+ * dictDelete: 해시 테이블에서 특정 키를 삭제합니다.
+ * 
+ * 
  */
 
 #include "fmacros.h"
@@ -59,6 +72,27 @@ static dictResizeEnable dict_can_resize = DICT_RESIZE_ENABLE;
 static unsigned int dict_force_resize_ratio = 5;
 
 /* -------------------------- types ----------------------------------------- */
+
+/*
+dictEntry 구조체는 Redis의 해시 테이블에서 각 키-값 쌍을 표현하는 데 사용됩니다. 
+이 구조체는 다음과 같은 필드를 가지고 있습니다:
+
+void *key: 키를 저장하는 포인터입니다. 이 포인터는 어떤 타입의 키도 저장할 수 있습니다.
+
+union { void *val; uint64_t u64; int64_t s64; double d; } v: 값을 저장하는 유니온입니다. 
+이 유니온은 여러 가지 타입의 값을 저장할 수 있습니다. 
+void *val은 일반적인 포인터 타입의 값을, 
+uint64_t u64는 부호 없는 64비트 정수 값을, 
+int64_t s64는 부호 있는 64비트 정수 값을, 
+double d는 부동소수점 값을 저장합니다.
+
+struct dictEntry *next: 같은 해시 버킷에 있는 다음 엔트리를 가리키는 포인터입니다. 
+이 필드는 해시 충돌이 발생했을 때, 연결 리스트를 통해 충돌을 해결하는 데 사용됩니다.
+
+void *metadata[]: 메타데이터를 저장하는 포인터 배열입니다. 
+이 배열의 크기는 dictType의 dictEntryMetadataBytes() 함수에 의해 반환된 값입니다. 
+이 메타데이터는 추가적인 정보를 저장하는 데 사용될 수 있습니다.
+*/
 
 struct dictEntry {
     void *key;

@@ -81,18 +81,30 @@ typedef struct dictType {
 #define DICTHT_SIZE(exp) ((exp) == -1 ? 0 : (unsigned long)1<<(exp))
 #define DICTHT_SIZE_MASK(exp) ((exp) == -1 ? 0 : (DICTHT_SIZE(exp))-1)
 
-struct dict {
-    dictType *type;
 
+// dict 구조체는 Redis에서 해시 테이블을 표현하는 핵심 데이터 구조입니다. 이 구조체는 해시 테이블의 동작을 제어하고, 해시 테이블의 상태를 저장합니다.
+struct dict {
+
+    // dictType *type: 해시 테이블의 동작을 제어하는 함수 포인터를 가진 dictType 구조체의 포인터입니다. 이 필드를 통해 키와 값의 해시 함수, 비교 함수, 복사 함수, 삭제 함수 등을 설정할 수 있습니다.
+    dictType *type;
+    
+    // 해시 테이블을 저장하는 dictEntry 포인터의 배열입니다. 두 개의 해시 테이블은 rehashing 동작을 위해 사용됩니다.
     dictEntry **ht_table[2];
+
+    // 각 해시 테이블에 저장된 키-값 쌍의 수를 저장합니다.
     unsigned long ht_used[2];
 
+    // 현재 rehashing이 진행 중일 경우, rehashing이 진행된 버킷의 인덱스를 저장합니다. rehashing이 진행 중이 아닐 경우, 이 값은 -1입니다.
     long rehashidx; /* rehashing not in progress if rehashidx == -1 */
 
     /* Keep small vars at end for optimal (minimal) struct padding */
+    // rehashing이 일시 중지된 경우 이 값을 사용합니다. 이 값이 0보다 크면 rehashing이 일시 중지되며, 0보다 작으면 코딩 오류를 나타냅니다
     int16_t pauserehash; /* If >0 rehashing is paused (<0 indicates coding error) */
+    // 해시 테이블의 크기를 2의 지수로 표현합니다. 즉, 해시 테이블의 크기는 1 << exp입니다.
     signed char ht_size_exp[2]; /* exponent of size. (size = 1<<exp) */
 
+    // 메타데이터를 저장하는 포인터 배열입니다. 이 배열의 크기는 dictType의 dictEntryBytes 함수에 의해 반환된 값입니다. 
+    // 이 메타데이터는 추가적인 정보를 저장하는 데 사용될 수 있습니다.
     void *metadata[];           /* An arbitrary number of bytes (starting at a
                                  * pointer-aligned address) of size as defined
                                  * by dictType's dictEntryBytes. */
