@@ -28,6 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+adlist.c 파일은 Redis에서 doubly linked list를 구현하는 데 사용됩니다. 
+이 파일에는 linked list를 생성, 수정, 조회, 삭제하는 데 필요한 함수들이 구현되어 있다
+*/
 
 #include <stdlib.h>
 #include "adlist.h"

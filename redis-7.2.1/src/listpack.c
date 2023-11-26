@@ -33,6 +33,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+listpack.c 파일은 Redis에서 Listpack이라는 자료 구조를 구현하는 데 사용됩니다. 
+Listpack은 Redis에서 리스트를 표현하는 또 다른 방법으로, 각각의 항목이 메모리에 연속적으로 저장되는 방식입니다.
+이는 메모리 사용량을 최소화하면서도, 작은 크기의 리스트에 대해 효율적인 액세스를 가능하게 합니다.
+*/
+
 #include <stdint.h>
 #include <limits.h>
 #include <sys/types.h>
