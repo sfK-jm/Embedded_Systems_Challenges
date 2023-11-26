@@ -2323,10 +2323,12 @@ struct redisCommand {
     redisCommandGroup group; /* Command group 명령어 그룹 */
     commandHistory *history; /* History of the command 명령어 히스토리 */
     int num_history;
-    const char **tips; /* An array of strings that are meant to be tips for clients/proxies regarding this command */
+    const char **tips; /* An array of strings that are meant to be tips for clients/proxies regarding this command
+                        * 이 명령과 관련하여 클라이언트/프록시를 위한 팁으로 제공되는 문자열 배열. */
     int num_tips;
     redisCommandProc *proc; /* Command implementation 명령어 구현 */
-    int arity; /* Number of arguments, it is possible to use -N to say >= N */
+    int arity; /* Number of arguments, it is possible to use -N to say >= N
+                * arguments의 크기, >= N 처럼 사용하고 싶으면 -N으로 입력.  */
     uint64_t flags; /* Command flags, see CMD_*. */
     uint64_t acl_categories; /* ACl categories, see ACL_CATEGORY_*. */
     keySpec *key_specs;
