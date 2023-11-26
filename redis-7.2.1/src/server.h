@@ -202,15 +202,17 @@ extern int configOOMScoreAdjValuesDefaults[CONFIG_OOM_COUNT];
 #define HASHTABLE_MAX_LOAD_FACTOR 1.618   /* Maximum hash table load factor. */
 
 /* Command flags. Please check the definition of struct redisCommand in this file
- * for more information about the meaning of every flag. */
+ * for more information about the meaning of every flag. 
+ * 명령 flags. 여기에서 struct redisCommand의 정의를 확인하십시오
+ * 모든 flag의 의미에 대한 자세한 내용을 확인할 수 있습니다.*/
 #define CMD_WRITE (1ULL<<0)
 #define CMD_READONLY (1ULL<<1)
 #define CMD_DENYOOM (1ULL<<2)
-#define CMD_MODULE (1ULL<<3)           /* Command exported by module. */
+#define CMD_MODULE (1ULL<<3)           /* Command exported by module. 모듈별로 내보낸 명령. */
 #define CMD_ADMIN (1ULL<<4)
 #define CMD_PUBSUB (1ULL<<5)
 #define CMD_NOSCRIPT (1ULL<<6)
-#define CMD_BLOCKING (1ULL<<8)       /* Has potential to block. */
+#define CMD_BLOCKING (1ULL<<8)       /* Has potential to block. 차단 가능성이 있음 */
 #define CMD_LOADING (1ULL<<9)
 #define CMD_STALE (1ULL<<10)
 #define CMD_SKIP_MONITOR (1ULL<<11)
@@ -2310,20 +2312,20 @@ typedef int redisGetKeysProc(struct redisCommand *cmd, robj **argv, int argc, ge
  */
 struct redisCommand {
     /* Declarative data */
-    const char *declared_name; /* A string representing the command declared_name.
-                                * It is a const char * for native commands and SDS for module commands. */
-    const char *summary; /* Summary of the command (optional). */
-    const char *complexity; /* Complexity description (optional). */
-    const char *since; /* Debut version of the command (optional). */
-    int doc_flags; /* Flags for documentation (see CMD_DOC_*). */
-    const char *replaced_by; /* In case the command is deprecated, this is the successor command. */
-    const char *deprecated_since; /* In case the command is deprecated, when did it happen? */
-    redisCommandGroup group; /* Command group */
-    commandHistory *history; /* History of the command */
+    const char *declared_name; /* A string representing the command declared_name. 명령어를 나타내는 declared_name 문자열.
+                                * It is a const char * for native commands and SDS for module commands. 기본 명령어일 경우const char *, 모듈 명령어일 경우 SDS. */
+    const char *summary; /* Summary of the command (optional). 명령어의 요약 (선택사항). */
+    const char *complexity; /* Complexity description (optional). 복잡도 설명 (선택사항).*/
+    const char *since; /* Debut version of the command (optional). 명령어가 추가된 버전 (선택사항).*/
+    int doc_flags; /* Flags for documentation (see CMD_DOC_*).문서화를 위한 Flags */
+    const char *replaced_by; /* In case the command is deprecated, this is the successor command. 명령어가 더 이상 사용되지 않을 경우, 이 명령어가 후속 명령어 입니다. */
+    const char *deprecated_since; /* In case the command is deprecated, when did it happen? 명령어가 더 이상 사용되지 않을 경우, 어느 버전에 만료되었는가? */
+    redisCommandGroup group; /* Command group 명령어 그룹 */
+    commandHistory *history; /* History of the command 명령어 히스토리 */
     int num_history;
     const char **tips; /* An array of strings that are meant to be tips for clients/proxies regarding this command */
     int num_tips;
-    redisCommandProc *proc; /* Command implementation */
+    redisCommandProc *proc; /* Command implementation 명령어 구현 */
     int arity; /* Number of arguments, it is possible to use -N to say >= N */
     uint64_t flags; /* Command flags, see CMD_*. */
     uint64_t acl_categories; /* ACl categories, see ACL_CATEGORY_*. */
