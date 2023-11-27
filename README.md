@@ -10,7 +10,7 @@
 
 ## 1. redis-server
 
-### 과제 1-1 aeMain()를 중심으로 ㄹ레디스 서버의 전반적인 동작 과정 분석
+### 과제 1-1 aeMain()를 중심으로 레디스 서버의 전반적인 동작 과정 분석
 
 Redis 서버의 주요 동작은 이벤트 루프 기반으로 처리되며, 이 과정은 ae.c 파일의 aeMain() 함수를 중심으로 이루어집니다.
 Redis에서 사용하는 이벤트 루프는 비동기 이벤트 처리 모델을 기반으로 하며, 네트워크 요청, 타이머 이벤트, 파일 입출력 이벤트 등을 효율적으로 관리합니다. aeMain() 함수의 작동 과정은 다음과 같습니다:
@@ -175,7 +175,7 @@ struct COMMAND_ARG PANG_Args[] = {
 
 // (중략)
 
-{MAKE_CMD("pang","Description of the pang command.","O(1)","1.0.0",CMD_DOC_NONE,NULL,NULL,"connection",COMMAND_GROUP_CONNECTION,PANG_History,0,PANG_Tips,0,pangCommand,-1,CMD_FAST,ACL_CATEGORY_CONNECTION,PANG_Keyspecs,0,NULL,1),.args=PANG_Args},
+{MAKE_CMD("pang","Returns the server's liveliness response.","O(1)","1.0.0",CMD_DOC_NONE,NULL,NULL,"connection",COMMAND_GROUP_CONNECTION,PANG_History,0,PANG_Tips,0,pangCommand,-1,CMD_FAST,ACL_CATEGORY_CONNECTION,PANG_Keyspecs,0,NULL,1),.args=PANG_Args},
 
 
 ```
